@@ -6,26 +6,14 @@ using UnityEngine;
 
 namespace Syy.Logics
 {
-    public abstract class StateMachine<TManager, TOwner> where TManager : StateMachine<TManager, TOwner>
+    public abstract class StateMachine
     {
-        TOwner _owner;
         State _active;
         TransitionMap _transitionMap = new TransitionMap();
 
+        public bool EnableLog { get; set; }
+
         public abstract void SetupState();
-
-        public void SetOwner(TOwner owner)
-        {
-            _owner = owner;
-        }
-
-        public State CreateState<TState>() where TState : State, new()
-        {
-            var state = new TState();
-            state.Manager = this;
-            state.Owner = _owner;
-            return state;
-        }
 
         public void DefineTransition(State from, State to, Enum trigger)
         {
@@ -51,6 +39,11 @@ namespace Syy.Logics
 
         public void ChangeActive(State active)
         {
+            if (EnableLog)
+            {
+                Debug.Log($"【State】ChangeActive : before={_active}, after={active}");
+            }
+
             _active?.Finish();
             _active = active;
             _active.Start();
@@ -68,10 +61,28 @@ namespace Syy.Logics
         }
     }
 
+    public abstract class StateMachine<TManager, TOwner> : StateMachine where TManager : StateMachine<TManager, TOwner>
+    {
+        TOwner _owner;
+
+        public void SetOwner(TOwner owner)
+        {
+            _owner = owner;
+        }
+
+        public State CreateState<TState>() where TState : State, new()
+        {
+            var state = new TState();
+            state.Manager = this;
+            state.Owner = _owner;
+            return state;
+        }
+    }
+
     public abstract class State
     {
         public object Owner;
-        public object Manager;
+        public StateMachine Manager;
 
         State _parent;
         State _active;
@@ -86,6 +97,11 @@ namespace Syy.Logics
                 if (this is IRequireParameter && _active is IRequireParameter)
                 {
                     ((IRequireParameter)_active).Parameter = ((IRequireParameter)this).Parameter;
+                }
+
+                if (Manager.EnableLog)
+                {
+                    Debug.Log($"【State】ActivateChild : child={_active}");
                 }
                 _active.Start();
             }
@@ -137,6 +153,10 @@ namespace Syy.Logics
 
         void ChangeActive(State active)
         {
+            if (Manager.EnableLog)
+            {
+                Debug.Log($"【State】ChangeActive : before={_active}, after={active}");
+            }
             _active?.Finish();
             _active = active;
             _active.Start();
