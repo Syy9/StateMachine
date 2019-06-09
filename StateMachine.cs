@@ -41,7 +41,7 @@ namespace Syy.Logics
         {
             if (EnableLog)
             {
-                Debug.Log($"【State】ChangeActive : before={_active}, after={active}");
+                Debug.Log($"【{GetType().Name}】{_active?.GetType().Name} -> {active.GetType().Name}");
             }
 
             _active?.Finish();
@@ -101,7 +101,7 @@ namespace Syy.Logics
 
                 if (Manager.EnableLog)
                 {
-                    Debug.Log($"【State】ActivateChild : child={_active}");
+                    Debug.Log($"【{Manager.GetType().Name}】Activate : {_active?.GetType().Name}");
                 }
                 _active.Start();
             }
@@ -155,7 +155,7 @@ namespace Syy.Logics
         {
             if (Manager.EnableLog)
             {
-                Debug.Log($"【State】ChangeActive : before={_active}, after={active}");
+                Debug.Log($"【{Manager.GetType().Name}】{_active?.GetType().Name} -> {active.GetType().Name}");
             }
             _active?.Finish();
             _active = active;
