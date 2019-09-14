@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Syy.Logics
@@ -58,6 +59,30 @@ namespace Syy.Logics
         public void Update()
         {
             _active?.Update();
+        }
+
+        public State GetActiveState()
+        {
+            return _active;
+        }
+
+        public virtual string GetActiveStateInfo()
+        {
+            if (_active == null)
+            {
+                return "No Active State";
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(_active.GetType().Name);
+            var activeChild = _active.GetActiveState();
+            while (activeChild != null)
+            {
+                sb.AppendLine();
+                sb.Append(activeChild.GetType().Name);
+                activeChild = activeChild.GetActiveState();
+            }
+            return sb.ToString();
         }
     }
 
@@ -160,6 +185,11 @@ namespace Syy.Logics
             _active?.Finish();
             _active = active;
             _active.Start();
+        }
+
+        public State GetActiveState()
+        {
+            return _active;
         }
     }
 
